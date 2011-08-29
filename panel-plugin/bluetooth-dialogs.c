@@ -29,9 +29,10 @@
 
 #include "bluetooth.h"
 #include "bluetooth-dialogs.h"
+#include "bluetooth-window.h"
 
 /* the website url */
-#define PLUGIN_WEBSITE "http://goodies.xfce.org/projects/panel-plugins/xfce4-bluetooth-plugin"
+#define PLUGIN_WEBSITE "https://github.com/EarlOfEgo/bluetooth-plugin"
 
 
 
@@ -108,6 +109,34 @@ bluetooth_configure (XfcePanelPlugin *plugin,
 void
 bluetooth_about (XfcePanelPlugin *plugin)
 {
-  /* about dialog code. you can use the GtkAboutDialog
-   * or the XfceAboutInfo widget */
+
+	gchar* authors[] = { "Stephan Hagios <stephan.hagios@gmail.com>", NULL };
+	gchar* artists[] = { "Stephan Hagios <stephan.hagios@gmail.com>", NULL };
+	gchar* comments = { _("A bluetooth plugin for xfce4 panel") };
+	gchar* copyright = { "Copyright (c) Stephan Hagios" };
+	gchar* documenters[] = { "Stephan Hagios <stephan.hagios@gmail.com>", NULL };	
+	gchar* name = "Bluetoot plugin";
+	gchar* version = "0.0.1";
+	gchar* website = "https://github.com/EarlOfEgo/bluetooth-plugin";
+	gchar* website_label = "github";
+
+	GtkWindow *parent = GTK_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET (plugin)));
+
+	gtk_window_set_title(parent, "Bluetoothplugin");
+	
+	gtk_show_about_dialog (parent,
+				"authors", authors, 
+				"artists", artists,
+				"comments", comments, 
+				"copyright", copyright, 
+				"documenters", documenters,
+				"name", name, 
+				"version", version, 
+				"website", website, 
+				"website-label", website_label,
+				"license", "GNU GPL-2.0",
+				 NULL);
+	             
+
+
 }

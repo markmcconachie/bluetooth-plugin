@@ -31,6 +31,7 @@
 
 #include "bluetooth.h"
 #include "bluetooth-dialogs.h"
+#include "bluetooth-windows.h"
 
 /* default settings */
 #define DEFAULT_SETTING1 NULL
@@ -129,7 +130,40 @@ bluetooth_read (bluetoothPlugin *bluetooth)
   bluetooth->setting3 = DEFAULT_SETTING3;
 }
 
+void
+do_something (XfcePanelPlugin *plugin)
+{
 
+	gchar* authors[] = { "Stephan Hagios <stephan.hagios@gmail.com>", NULL };
+	gchar* artists[] = { "Stephan Hagios <stephan.hagios@gmail.com>", NULL };
+	gchar* comments = { _("A bluetooth plugin for xfce4 panel") };
+	gchar* copyright = { "Copyright (c) Stephan Hagios" };
+	gchar* documenters[] = { "Stephan Hagios <stephan.hagios@gmail.com>", NULL };	
+	gchar* name = "Bluetoot plugin";
+	gchar* version = "0.0.1";
+	gchar* website = "https://github.com/EarlOfEgo/bluetooth-plugin";
+	gchar* website_label = "github";
+
+	GtkWindow *parent = GTK_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET (plugin)));
+
+	gtk_window_set_title(parent, "Bluetoothplugin");
+	
+	gtk_show_about_dialog (parent,
+				"authors", authors, 
+				"artists", artists,
+				"comments", comments, 
+				"copyright", copyright, 
+				"documenters", documenters,
+				"name", name, 
+				"version", version, 
+				"website", website, 
+				"website-label", website_label,
+				"license", "GNU GPL-2.0",
+				 NULL);
+	             
+
+
+}
 
 static bluetoothPlugin *
 bluetooth_new (XfcePanelPlugin *plugin)
@@ -166,6 +200,7 @@ bluetooth_new (XfcePanelPlugin *plugin)
   label = gtk_label_new (_("Plugin"));
   gtk_widget_show (label);
   gtk_box_pack_start (GTK_BOX (bluetooth->hvbox), label, FALSE, FALSE, 0);
+
 
   return bluetooth;
 }
@@ -228,7 +263,6 @@ bluetooth_size_changed (XfcePanelPlugin *plugin,
 }
 
 
-
 static void
 bluetooth_construct (XfcePanelPlugin *plugin)
 {
@@ -259,6 +293,10 @@ bluetooth_construct (XfcePanelPlugin *plugin)
   g_signal_connect (G_OBJECT (plugin), "orientation-changed",
                     G_CALLBACK (bluetooth_orientation_changed), bluetooth);
 
+	/*Clicking on the plugin*/
+  g_signal_connect (G_OBJECT (plugin), "button_press_event",
+					G_CALLBACK (open_main_window), bluetooth);
+
   /* show the configure menu item and connect signal */
   xfce_panel_plugin_menu_show_configure (plugin);
   g_signal_connect (G_OBJECT (plugin), "configure-plugin",
@@ -268,4 +306,6 @@ bluetooth_construct (XfcePanelPlugin *plugin)
   xfce_panel_plugin_menu_show_about (plugin);
   g_signal_connect (G_OBJECT (plugin), "about",
                     G_CALLBACK (bluetooth_about), NULL);
+
+	
 }
