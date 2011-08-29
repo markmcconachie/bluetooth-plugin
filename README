@@ -1,1 +1,17 @@
-A small bluetooth plugin for the xfce4 panel.
+What is it?
+===========
+
+This is a bluetooth plugin for the Xfce panel, version 4.3 or higher.
+
+
+Installation
+============
+
+The file 'INSTALL' contains generic installation instructions.
+sh autogen.sh
+./configure (at xubuntu with --prefix=/usr)
+make
+make install
+
+How to report bugs?
+===================
