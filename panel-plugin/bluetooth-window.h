@@ -23,7 +23,7 @@
 G_BEGIN_DECLS
 
 void
-open_main_window((XfcePanelPlugin *plugin);
+open_main_window(XfcePanelPlugin *plugin);
 
 void
 scanVisibleDev();

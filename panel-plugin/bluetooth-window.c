@@ -32,7 +32,7 @@
 #include "bluetooth-window.h"
 
 void
-open_main_window((XfcePanelPlugin *plugin)
+open_main_window(XfcePanelPlugin *plugin)
 {
 
 }

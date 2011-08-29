@@ -31,7 +31,7 @@
 
 #include "bluetooth.h"
 #include "bluetooth-dialogs.h"
-#include "bluetooth-windows.h"
+#include "bluetooth-window.h"
 
 /* default settings */
 #define DEFAULT_SETTING1 NULL

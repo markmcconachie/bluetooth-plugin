@@ -17,7 +17,9 @@ xfce4_bluetooth_plugin_SOURCES = \
 	bluetooth.c \
 	bluetooth.h \
 	bluetooth-dialogs.c \
-	bluetooth-dialogs.h
+	bluetooth-dialogs.h \
+	bluetooth-window.c \
+	bluetooth-window.h
 
 xfce4_bluetooth_plugin_CFLAGS = \
 	$(LIBXFCE4UTIL_CFLAGS) \
