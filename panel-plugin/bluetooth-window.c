@@ -31,10 +31,39 @@
 #include "bluetooth-dialogs.h"
 #include "bluetooth-window.h"
 
+
 void
 open_main_window(XfcePanelPlugin *plugin)
 {
+	GtkWidget *window;
+	GtkToggleButton *button;
 
+	
+	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_title(window, _("Bluetooth Plugin"));
+
+	button = gtk_toggle_button_new_with_label(_("Enable Bluetooth"));
+
+
+	gtk_container_add (GTK_CONTAINER (window), button);
+	gtk_toggle_button_set_active(button, bluetoothActivated());
+	gtk_widget_show (button);
+
+	gtk_container_set_border_width (GTK_CONTAINER (window), 100);
+	gtk_widget_show (window);
+
+}
+
+gboolean
+bluetoothActivated()
+{
+	return TRUE;
+}
+
+void
+disableBluetooth()
+{
+	//system("/usr/sbin/hciconfig hci0 down &> /dev/null");
 }
 
 void
