@@ -22,11 +22,22 @@
 
 G_BEGIN_DECLS
 
+enum
+{
+  DEV_NAME = 0,
+  DEV_ADDR,
+  NUM_COLS
+};
+
+void
+scanVisDev(GtkWidget *widget, gpointer list);
+
+static void
+addVisDev(GtkWidget *list, const gchar *str1, const gchar *str2);
+
 void
 open_main_window(XfcePanelPlugin *plugin);
 
-void
-scanVisibleDev();
 
 G_END_DECLS
 

@@ -30,28 +30,106 @@
 #include "bluetooth.h"
 #include "bluetooth-dialogs.h"
 #include "bluetooth-window.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <bluetooth/bluetooth.h>
+#include <bluetooth/hci.h>
+#include <bluetooth/hci_lib.h>
+
+
+static void
+addVisDev(GtkWidget *list, const gchar *str1, const gchar *str2)
+{
+	GtkListStore *store;
+	GtkTreeIter iter;
+
+	store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(list)));
+
+	gtk_list_store_append(store, &iter);
+	gtk_list_store_set(store, &iter,
+                      DEV_NAME, str1,
+        				DEV_ADDR, str2,
+                      -1);
+}
+
+void
+scanDev(GtkWidget *widget, gpointer list)
+{
+	
+	//	addVisDev(list, name, addr);
+	
+}
+
+static GtkWidget *
+initMoView (void)
+{
+	GtkCellRenderer	*renderer;
+	GtkTreeModel	*model;
+	GtkWidget		*view;
+	GtkListStore  	*store;
+	GtkTreeIter    	iter;
+
+	view = gtk_tree_view_new ();
+	renderer = gtk_cell_renderer_text_new ();
+	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (view), -1, "Device Name", renderer, "text", DEV_NAME, NULL);
+
+	renderer = gtk_cell_renderer_text_new ();
+	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (view), -1, "Device Address", renderer, "text", DEV_ADDR, NULL);
+
+	store = gtk_list_store_new (NUM_COLS, G_TYPE_STRING, G_TYPE_STRING);
+	model = GTK_TREE_MODEL (store);
+
+	gtk_tree_view_set_model (GTK_TREE_VIEW (view), model);
+	g_object_unref (model);
+
+	return view;
+}
 
 
 void
 open_main_window(XfcePanelPlugin *plugin)
 {
 	GtkWidget *window;
-	GtkToggleButton *button;
+	GtkWidget *list;
+	GtkWidget *scrolled_window;
+	GtkWidget *table;
+	GtkWidget *button;
+	GtkWidget *bbox;
+
+
+	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	g_signal_connect (window, "delete_event", gtk_main_quit, NULL); /* dirty */
+	gtk_container_set_border_width (GTK_CONTAINER (window), 10);
+	gtk_window_set_default_size (GTK_WINDOW (window), 300, 300);
+	
+
+	list = initMoView ();
+	table = gtk_table_new (2, 4, TRUE);
+
+	scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+	gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (scrolled_window), list);
+	gtk_table_attach_defaults (GTK_TABLE (table), scrolled_window, 1, 4, 0, 2);
+
+	bbox = gtk_vbutton_box_new();
+	gtk_button_box_set_layout(GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_START);
 
 	
-	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(window, _("Bluetooth Plugin"));
 
-	button = gtk_toggle_button_new_with_label(_("Enable Bluetooth"));
+	button = gtk_button_new_with_label (("Scan"));
+	g_signal_connect (button, "clicked", G_CALLBACK (scanDev), (gpointer)(list));
+	
 
+	gtk_container_add (GTK_CONTAINER (bbox), button);
 
-	gtk_container_add (GTK_CONTAINER (window), button);
-	gtk_toggle_button_set_active(button, bluetoothActivated());
-	gtk_widget_show (button);
+	gtk_table_attach_defaults (GTK_TABLE (table), bbox, 0, 1, 0, 1);
 
-	gtk_container_set_border_width (GTK_CONTAINER (window), 100);
-	gtk_widget_show (window);
+		
 
+	gtk_container_add (GTK_CONTAINER (window), table);
+
+	gtk_widget_show_all (window);
 }
 
 gboolean
