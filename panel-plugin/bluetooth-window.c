@@ -27,9 +27,7 @@
 #include <libxfce4ui/libxfce4ui.h>
 #include <libxfce4panel/xfce-panel-plugin.h>
 
-#include "bluetooth.h"
-#include "bluetooth-dialogs.h"
-#include "bluetooth-window.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -38,6 +36,10 @@
 #include <bluetooth/hci.h>
 #include <bluetooth/hci_lib.h>
 
+
+#include "bluetooth.h"
+#include "bluetooth-dialogs.h"
+#include "bluetooth-window.h"
 
 static void
 addVisDev(GtkWidget *list, const gchar *str1, const gchar *str2)
@@ -55,11 +57,57 @@ addVisDev(GtkWidget *list, const gchar *str1, const gchar *str2)
 }
 
 void
+getOwnDevName(char* localName)
+{
+
+    int dev_id, sock;
+    dev_id = hci_get_route(NULL);
+    sock = hci_open_dev( dev_id );
+    if (dev_id < 0 || sock < 0) 
+	{
+        return;
+    }
+
+	hci_read_local_name(sock, 248, localName, 0);
+    close( sock );
+}
+
+void
 scanDev(GtkWidget *widget, gpointer list)
 {
-	
-	//	addVisDev(list, name, addr);
-	
+	inquiry_info *ii = NULL;
+    int max_rsp, num_rsp;
+    int dev_id, sock, len, flags;
+    int i;
+    char addr[19] = { 0 };
+    char name[248] = { 0 };
+
+    dev_id = hci_get_route(NULL);
+    sock = hci_open_dev( dev_id );
+    if (dev_id < 0 || sock < 0) 
+	{
+        return;
+    }
+
+    len  = 8;
+    max_rsp = 255;
+    flags = IREQ_CACHE_FLUSH;
+    ii = (inquiry_info*)malloc(max_rsp * sizeof(inquiry_info));
+    
+    num_rsp = hci_inquiry(dev_id, len, max_rsp, NULL, &ii, flags);
+    if( num_rsp < 0 ) perror("hci_inquiry");
+
+    for (i = 0; i < num_rsp; i++) 
+	{
+        ba2str(&(ii+i)->bdaddr, addr);
+        memset(name, 0, sizeof(name));
+        if (hci_read_remote_name(sock, &(ii+i)->bdaddr, sizeof(name), name, 0) < 0)
+        strcpy(name, _("unknown"));
+        addVisDev(list, name, addr);
+    }
+
+    free( ii );
+    close( sock );
 }
 
 static GtkWidget *
@@ -73,10 +121,10 @@ initMoView (void)
 
 	view = gtk_tree_view_new ();
 	renderer = gtk_cell_renderer_text_new ();
-	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (view), -1, "Device Name", renderer, "text", DEV_NAME, NULL);
+	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (view), -1, _("Device Name"), renderer, "text", DEV_NAME, NULL);
 
 	renderer = gtk_cell_renderer_text_new ();
-	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (view), -1, "Device Address", renderer, "text", DEV_ADDR, NULL);
+	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (view), -1, _("Device Address"), renderer, "text", DEV_ADDR, NULL);
 
 	store = gtk_list_store_new (NUM_COLS, G_TYPE_STRING, G_TYPE_STRING);
 	model = GTK_TREE_MODEL (store);
@@ -97,35 +145,48 @@ open_main_window(XfcePanelPlugin *plugin)
 	GtkWidget *table;
 	GtkWidget *button;
 	GtkWidget *bbox;
+	GtkWidget *label;
+	GtkWidget *frame;
 
 
 	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-	g_signal_connect (window, "delete_event", gtk_main_quit, NULL); /* dirty */
 	gtk_container_set_border_width (GTK_CONTAINER (window), 10);
 	gtk_window_set_default_size (GTK_WINDOW (window), 300, 300);
 	
 
 	list = initMoView ();
-	table = gtk_table_new (2, 4, TRUE);
+	table = gtk_table_new (5, 4, TRUE);
+
 
 	scrolled_window = gtk_scrolled_window_new (NULL, NULL);
 	gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (scrolled_window), list);
-	gtk_table_attach_defaults (GTK_TABLE (table), scrolled_window, 1, 4, 0, 2);
+	gtk_table_attach_defaults (GTK_TABLE (table), scrolled_window, 1, 4, 0, 4);
 
 	bbox = gtk_vbutton_box_new();
 	gtk_button_box_set_layout(GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_START);
 
 	
 
-	button = gtk_button_new_with_label (("Scan"));
-	g_signal_connect (button, "clicked", G_CALLBACK (scanDev), (gpointer)(list));
+	button = gtk_button_new_with_label (_("Scan"));
+	g_signal_connect (button, "clicked",
+		      G_CALLBACK (scanDev), (gpointer)(list));
 	
 
 	gtk_container_add (GTK_CONTAINER (bbox), button);
 
 	gtk_table_attach_defaults (GTK_TABLE (table), bbox, 0, 1, 0, 1);
 
-		
+	
+	char* ownDevName = (char *) malloc( 248 );;
+	
+	getOwnDevName(ownDevName);
+	label = gtk_label_new(ownDevName);
+
+	frame = gtk_frame_new(_("Own Device Name"));
+	gtk_frame_set_shadow_type(GTK_FRAME (frame), GTK_SHADOW_ETCHED_OUT);
+
+	gtk_table_attach_defaults (GTK_TABLE (table), label, 2, 4, 4, 5);
+	gtk_table_attach_defaults (GTK_TABLE (table), frame, 2, 4, 4, 5);
 
 	gtk_container_add (GTK_CONTAINER (window), table);
 

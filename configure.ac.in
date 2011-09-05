@@ -75,7 +75,7 @@ XDT_CHECK_PACKAGE([GTK], [gtk+-2.0], [2.20.0])
 XDT_CHECK_PACKAGE([LIBXFCE4UI], [libxfce4ui-1], [4.8.0])
 XDT_CHECK_PACKAGE([LIBXFCE4UTIL], [libxfce4util-1.0], [4.8.0])
 XDT_CHECK_PACKAGE([LIBXFCE4PANEL], [libxfce4panel-1.0], [4.8.0])
-XDT_CHECK_PACKAGE([BLUEZ], [bluez], [3.11.0])
+XDT_CHECK_PACKAGE([BLUEZ], [bluez], [4.30])
 
 dnl ***********************************
 dnl *** Check for debugging support ***

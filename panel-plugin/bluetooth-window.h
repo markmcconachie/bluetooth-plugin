@@ -32,6 +32,9 @@ enum
 void
 scanVisDev(GtkWidget *widget, gpointer list);
 
+void
+getOwnDevName(char* localName);
+
 static void
 addVisDev(GtkWidget *list, const gchar *str1, const gchar *str2);
 
